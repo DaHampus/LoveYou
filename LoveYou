@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Themed Log Viewer</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #logList {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+
+        #logList li {
+            cursor: pointer;
+            padding: 5px 10px;
+            border: 1px solid #0f0;
+            margin-bottom: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #logList li:hover {
+            background-color: rgba(0, 255, 0, 0.1);
+        }
+
+        #logDisplay {
+            background-color: #000;
+            border: 1px solid #0f0;
+            padding: 10px;
+            height: 60%;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 0px,
+                rgba(0, 0, 0, 0) 1px,
+                rgba(0, 0, 0, 0.05) 2px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logContent {
+            display: none;
+        }
+
+        #backupModal {
+            display: none;
+            position: fixed;
+            z-index: 3;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #backupModalContent {
+            background-color: #111;
+            padding: 20px;
+            border: 1px solid #0f0;
+            width: 300px;
+            margin: auto;
+            text-align: center;
+        }
+
+        #backupModalContent input {
+            width: 80%;
+            padding: 5px;
+            margin: 10px 0;
+            background-color: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #backupModalContent button {
+            padding: 5px 10px;
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #backupModalContent button:hover {
+            background-color: #0c0;
+        }
+
+        .message {
+            margin-top: 10px;
+            color: #f00;
+        }
+
+        .success {
+            color: #0f0;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <h1>Terminal Log Viewer</h1>
+        <ul id="logList">
+            <li data-log="log1">system.log</li>
+            <li data-log="log2">error.log</li>
+            <li data-log="log3">access.log</li>
+            <li data-log="log4">CORRUPTED.log</li>
+        </ul>
+        <div id="logDisplay">Click on a log file to view its contents.</div>
+    </div>
+
+    <pre id="log1" class="logContent">
+2024-04-25 10:15:32 INFO Starting system services...
+2024-04-25 10:15:35 INFO Services started successfully.
+2024-04-25 10:16:01 WARN Low disk space on /dev/sda1.
+2024-04-25 10:17:45 ERROR Failed to connect to database.
+2024-04-25 10:18:00 INFO Attempting to reconnect to database.
+2024-04-25 10:18:05 INFO Reconnected to database successfully.
+    </pre>
+
+    <pre id="log2" class="logContent">
+2024-04-25 10:16:01 ERROR NullPointerException at com.example.Main.main(Main.java:25)
+2024-04-25 10:17:45 ERROR DatabaseConnectionException: Connection timed out
+2024-04-25 10:18:10 ERROR Unable to retrieve user data.
+2024-04-25 10:19:20 ERROR Unexpected token in JSON at position 15
+    </pre>
+
+    <pre id="log3" class="logContent">
+192.168.1.10 - - [25/Apr/2024:10:15:32 +0000] "GET /index.html HTTP/1.1" 200 1024
+192.168.1.11 - - [25/Apr/2024:10:16:45 +0000] "POST /login HTTP/1.1" 302 512
+192.168.1.12 - - [25/Apr/2024:10:17:50 +0000] "GET /dashboard HTTP/1.1" 200 2048
+192.168.1.13 - - [25/Apr/2024:10:18:05 +0000] "DELETE /user/123 HTTP/1.1" 403 256
+192.168.1.14 - - [25/Apr/2024:10:19:10 +0000] "PUT /settings HTTP/1.1" 200 768
+    </pre>
+
+    <pre id="log4" class="logContent">
+As I log into VRChat, the familiar rush of excitement and nostalgia hits me like a wave.
+The vibrant worlds have always drawn me in, but today feels different.
+Today, I find myself wandering the virtual spaces, haunted by memories of my ex-boyfriend, Bosse.
+Sometimes, I catch a glimpse of an avatar that looks like him, and my heart skips a beat.
+I can almost hear Bosse's laughter echoing through the air, a sound that once filled my heart with joy.
+We spent countless nights snuggling together, lost in our own world.
+I remember how he would pull me close, his avatar close to mine.
+It feels so empty now, like a piece of me is missing in this digital game.
+I often revisit our favorite Worlds.
+In those moments, everything felt possible.
+I thought our love was unbreakable, that we would explore the universe together forever.
+But life had other plans, and now, all I have are echoes of our time together.
+I want to reach out, to tell him how much I miss him, how the spaces we once filled together now feel so hollow.
+I go to the worlds you usually hang around in.
+But he’s not there, and the silence that follows is deafening.
+I try to remember the fun we had, and the dreams we was supposed build togeter.
+As I sit here in those worlds that we made memories together in...
+You will always be a part of me, no matter how far aprat we are.
+And maybe, just maybe, one day I’ll find him wandering these worlds again.
+Until then, I’ll keep logging in, cherishing our moments while hoping for him to come back again.
+    </pre>
+
+    <div id="backupModal">
+        <div id="backupModalContent">
+            <h2>Corrupted Log File</h2>
+            <p>This log file is corrupted. Please enter the backup code provided by an admin to fix it.</p>
+            <input type="password" id="backupCodeInput" placeholder="Enter Backup Code">
+            <br>
+            <button id="submitCode">Submit</button>
+            <div id="message" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+    const ENCODED_BACKUP_CODE = "JMpwfZpvCpttf";
+
+        const logList = document.getElementById('logList');
+        const logDisplay = document.getElementById('logDisplay');
+        const backupModal = document.getElementById('backupModal');
+        const backupCodeInput = document.getElementById('backupCodeInput');
+        const submitCodeButton = document.getElementById('submitCode');
+        const messageDiv = document.getElementById('message');
+
+        const backupCodeAccepted = localStorage.getItem('backupCodeAccepted');
+
+        if (backupCodeAccepted === "true") {
+            displayLog("log4");
+        }
+
+        logList.addEventListener('click', function(e) {
+            if (e.target && e.target.nodeName === "LI") {
+                const logKey = e.target.getAttribute('data-log');
+                if (logKey === "log4") {
+                    showBackupModal();
+                } else {
+                    displayLog(logKey);
+                }
+            }
+        });
+
+        function displayLog(logKey) {
+            const logElement = document.getElementById(logKey);
+            if (logElement) {
+                logDisplay.textContent = logElement.textContent.trim();
+                logDisplay.scrollTop = 0;
+            } else {
+                logDisplay.textContent = "Log file not found.";
+            }
+        }
+
+        function showBackupModal() {
+            backupCodeInput.value = "";
+            messageDiv.textContent = "";
+            messageDiv.classList.remove('success');
+            messageDiv.classList.remove('error');
+
+            backupModal.style.display = "flex";
+            backupCodeInput.focus();
+        }
+
+        function hideBackupModal() {
+            backupModal.style.display = "none";
+        }
+
+        submitCodeButton.addEventListener('click', function() {
+            const enteredCode = backupCodeInput.value.trim();
+            if (enteredCode === decodeBackupCode(ENCODED_BACKUP_CODE)) {
+                messageDiv.textContent = "Backup code accepted. Displaying log...";
+                messageDiv.classList.add('success');
+
+                setTimeout(() => {
+                    hideBackupModal();
+                    displayLog("log4");
+                    localStorage.setItem('backupCodeAccepted', 'true');
+                }, 1000);
+            } else {
+                messageDiv.textContent = "Incorrect backup code. Please try again.";
+                messageDiv.classList.add('error');
+            }
+        });
+
+        function decodeBackupCode(encodedCode) {
+            const shift = 1; // Shift changed to 1
+            let decoded = '';
+            for (let i = 0; i < encodedCode.length; i++) {
+                const char = encodedCode[i];
+                if (/[A-Za-z]/.test(char)) {
+                    const code = char.charCodeAt(0);
+                    let decodedChar;
+                    if (code >= 65 && code <= 90) {
+                        decodedChar = String.fromCharCode((code - shift - 65 + 26) % 26 + 65);
+                    } else if (code >= 97 && code <= 122) {
+                        decodedChar = String.fromCharCode((code - shift - 97 + 26) % 26 + 97);
+                    }
+                    decoded += decodedChar;
+                } else {
+                    decoded += char;
+                }
+            }
+            return decoded;
+        }
+
+        window.addEventListener('click', function(event) {
+            if (event.target == backupModal) {
+                hideBackupModal();
+            }
+        });
+
+        backupCodeInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                submitCodeButton.click();
+            }
+        });
+    </script>
+</body>
+</html>
